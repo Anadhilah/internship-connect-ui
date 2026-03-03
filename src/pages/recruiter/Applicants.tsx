@@ -1,14 +1,15 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/StatusBadge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { FileText, Download } from "lucide-react";
 
 const applicants = [
-  { id: 1, name: "Alex Johnson", email: "alex@uni.edu", role: "Software Engineering Intern", status: "pending" as const },
-  { id: 2, name: "Maria Garcia", email: "maria@uni.edu", role: "Software Engineering Intern", status: "accepted" as const },
-  { id: 3, name: "James Lee", email: "james@uni.edu", role: "Product Design Intern", status: "reviewing" as const },
-  { id: 4, name: "Emma Wilson", email: "emma@uni.edu", role: "Data Analyst Intern", status: "rejected" as const },
+  { id: 1, name: "Alex Johnson", email: "alex@uni.edu", role: "Software Engineering Intern", status: "pending" as const, cvFile: "alex_johnson_cv.pdf" },
+  { id: 2, name: "Maria Garcia", email: "maria@uni.edu", role: "Software Engineering Intern", status: "accepted" as const, cvFile: "maria_garcia_cv.pdf" },
+  { id: 3, name: "James Lee", email: "james@uni.edu", role: "Product Design Intern", status: "reviewing" as const, cvFile: "james_lee_cv.pdf" },
+  { id: 4, name: "Emma Wilson", email: "emma@uni.edu", role: "Data Analyst Intern", status: "rejected" as const, cvFile: "emma_wilson_cv.pdf" },
 ];
 
 export default function Applicants() {
@@ -26,6 +27,7 @@ export default function Applicants() {
                 <TableHead>Name</TableHead>
                 <TableHead className="hidden sm:table-cell">Email</TableHead>
                 <TableHead>Position</TableHead>
+                <TableHead>CV</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Update</TableHead>
               </TableRow>
@@ -36,6 +38,13 @@ export default function Applicants() {
                   <TableCell className="font-medium">{app.name}</TableCell>
                   <TableCell className="hidden sm:table-cell">{app.email}</TableCell>
                   <TableCell>{app.role}</TableCell>
+                  <TableCell>
+                    <Button variant="ghost" size="sm" className="text-primary gap-1.5">
+                      <FileText className="h-3.5 w-3.5" />
+                      <span className="hidden md:inline text-xs">View CV</span>
+                      <Download className="h-3 w-3" />
+                    </Button>
+                  </TableCell>
                   <TableCell><StatusBadge status={app.status} /></TableCell>
                   <TableCell className="text-right">
                     <Select>
