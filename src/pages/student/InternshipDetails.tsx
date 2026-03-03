@@ -2,7 +2,12 @@ import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, MapPin, Clock, Building2, Calendar, DollarSign } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { ArrowLeft, MapPin, Clock, Building2, Calendar, DollarSign, Upload, CheckCircle } from "lucide-react";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 const internshipData: Record<string, any> = {
   "1": {
@@ -18,6 +23,21 @@ const internshipData: Record<string, any> = {
 export default function InternshipDetails() {
   const { id } = useParams();
   const internship = internshipData[id || "1"] || internshipData["1"];
+  const [applyOpen, setApplyOpen] = useState(false);
+  const [cvFile, setCvFile] = useState<File | null>(null);
+  const [coverLetter, setCoverLetter] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleApply = () => {
+    // Mock submission
+    setSubmitted(true);
+    setTimeout(() => {
+      setApplyOpen(false);
+      setSubmitted(false);
+      setCvFile(null);
+      setCoverLetter("");
+    }, 2000);
+  };
 
   return (
     <div className="space-y-6 animate-fade-in max-w-3xl">
@@ -65,7 +85,58 @@ export default function InternshipDetails() {
           </div>
         </CardContent>
       </Card>
-      <Button size="lg">Apply Now</Button>
+      <Button size="lg" onClick={() => setApplyOpen(true)}>Apply Now</Button>
+
+      {/* Apply Dialog */}
+      <Dialog open={applyOpen} onOpenChange={setApplyOpen}>
+        <DialogContent className="max-w-md">
+          {submitted ? (
+            <div className="py-8 text-center space-y-3">
+              <CheckCircle className="h-12 w-12 text-success mx-auto" />
+              <h3 className="text-lg font-display font-bold">Application Submitted!</h3>
+              <p className="text-sm text-muted-foreground">Your CV has been sent to {internship.company}.</p>
+            </div>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle>Apply for {internship.title}</DialogTitle>
+                <DialogDescription>Upload your CV to apply. It will be shared with {internship.company}.</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-2">
+                <div className="space-y-2">
+                  <Label>Resume / CV</Label>
+                  <label
+                    htmlFor="apply-cv"
+                    className={cn(
+                      "border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all block",
+                      cvFile ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
+                    )}
+                  >
+                    <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                    {cvFile ? (
+                      <p className="text-sm font-medium">{cvFile.name}</p>
+                    ) : (
+                      <>
+                        <p className="text-sm font-medium">Upload your CV</p>
+                        <p className="text-xs text-muted-foreground mt-1">PDF, DOC — max 5MB</p>
+                      </>
+                    )}
+                    <input id="apply-cv" type="file" accept=".pdf,.doc,.docx" className="hidden" onChange={(e) => setCvFile(e.target.files?.[0] || null)} />
+                  </label>
+                </div>
+                <div className="space-y-2">
+                  <Label>Cover Letter (optional)</Label>
+                  <Textarea rows={3} placeholder="Why are you interested in this role?" value={coverLetter} onChange={(e) => setCoverLetter(e.target.value)} />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setApplyOpen(false)}>Cancel</Button>
+                <Button onClick={handleApply} disabled={!cvFile}>Submit Application</Button>
+              </DialogFooter>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

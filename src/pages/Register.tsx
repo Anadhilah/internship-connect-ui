@@ -19,10 +19,14 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (role === "recruiter") {
+      navigate("/register/recruiter");
+      return;
+    }
     setLoading(true);
     try {
       await register(name, email, password, role);
-      navigate(role === "student" ? "/student" : "/recruiter");
+      navigate("/student/onboarding");
     } finally {
       setLoading(false);
     }

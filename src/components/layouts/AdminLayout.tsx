@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Briefcase, LayoutDashboard, Users, Settings, LogOut, Menu, X, Shield } from "lucide-react";
+import { Briefcase, LayoutDashboard, Users, Settings, LogOut, Menu, X, Shield, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -8,6 +8,7 @@ import { useState } from "react";
 const navItems = [
   { label: "Dashboard", path: "/admin", icon: LayoutDashboard },
   { label: "Manage Users", path: "/admin/users", icon: Users },
+  { label: "Manage Recruiters", path: "/admin/recruiters", icon: Building2 },
   { label: "Manage Internships", path: "/admin/internships", icon: Settings },
 ];
 

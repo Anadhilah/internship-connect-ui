@@ -12,12 +12,15 @@ import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 
 import StudentLayout from "./components/layouts/StudentLayout";
+import StudentOnboarding from "./pages/student/Onboarding";
 import StudentOverview from "./pages/student/Overview";
 import StudentProfile from "./pages/student/Profile";
 import BrowseInternships from "./pages/student/BrowseInternships";
 import InternshipDetails from "./pages/student/InternshipDetails";
 import MyApplications from "./pages/student/MyApplications";
 
+import RecruiterRegister from "./pages/recruiter/Register";
+import PendingApproval from "./pages/recruiter/PendingApproval";
 import RecruiterLayout from "./components/layouts/RecruiterLayout";
 import RecruiterOverview from "./pages/recruiter/Overview";
 import CompanyProfile from "./pages/recruiter/CompanyProfile";
@@ -28,6 +31,7 @@ import Applicants from "./pages/recruiter/Applicants";
 import AdminLayout from "./components/layouts/AdminLayout";
 import AdminDashboard from "./pages/admin/Dashboard";
 import ManageUsers from "./pages/admin/ManageUsers";
+import ManageRecruiters from "./pages/admin/ManageRecruiters";
 import AdminManageInternships from "./pages/admin/ManageInternships";
 
 const queryClient = new QueryClient();
@@ -43,8 +47,11 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/register/recruiter" element={<RecruiterRegister />} />
+            <Route path="/recruiter/pending" element={<PendingApproval />} />
 
             {/* Student Routes */}
+            <Route path="/student/onboarding" element={<ProtectedRoute allowedRoles={["student"]}><StudentOnboarding /></ProtectedRoute>} />
             <Route path="/student" element={<ProtectedRoute allowedRoles={["student"]}><StudentLayout /></ProtectedRoute>}>
               <Route index element={<StudentOverview />} />
               <Route path="profile" element={<StudentProfile />} />
@@ -66,6 +73,7 @@ const App = () => (
             <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><AdminLayout /></ProtectedRoute>}>
               <Route index element={<AdminDashboard />} />
               <Route path="users" element={<ManageUsers />} />
+              <Route path="recruiters" element={<ManageRecruiters />} />
               <Route path="internships" element={<AdminManageInternships />} />
             </Route>
 
