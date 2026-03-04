@@ -18,6 +18,7 @@ import StudentProfile from "./pages/student/Profile";
 import BrowseInternships from "./pages/student/BrowseInternships";
 import InternshipDetails from "./pages/student/InternshipDetails";
 import MyApplications from "./pages/student/MyApplications";
+import StudentMessages from "./pages/student/Messages";
 
 import RecruiterRegister from "./pages/recruiter/Register";
 import PendingApproval from "./pages/recruiter/PendingApproval";
@@ -27,12 +28,14 @@ import CompanyProfile from "./pages/recruiter/CompanyProfile";
 import PostInternship from "./pages/recruiter/PostInternship";
 import ManageInternships from "./pages/recruiter/ManageInternships";
 import Applicants from "./pages/recruiter/Applicants";
+import RecruiterMessages from "./pages/recruiter/Messages";
 
 import AdminLayout from "./components/layouts/AdminLayout";
 import AdminDashboard from "./pages/admin/Dashboard";
 import ManageUsers from "./pages/admin/ManageUsers";
 import ManageRecruiters from "./pages/admin/ManageRecruiters";
 import AdminManageInternships from "./pages/admin/ManageInternships";
+import FloatingChat from "./components/chat/FloatingChat";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +61,7 @@ const App = () => (
               <Route path="internships" element={<BrowseInternships />} />
               <Route path="internships/:id" element={<InternshipDetails />} />
               <Route path="applications" element={<MyApplications />} />
+              <Route path="messages" element={<StudentMessages />} />
             </Route>
 
             {/* Recruiter Routes */}
@@ -67,6 +71,7 @@ const App = () => (
               <Route path="post" element={<PostInternship />} />
               <Route path="manage" element={<ManageInternships />} />
               <Route path="applicants" element={<Applicants />} />
+              <Route path="messages" element={<RecruiterMessages />} />
             </Route>
 
             {/* Admin Routes */}
@@ -79,6 +84,7 @@ const App = () => (
 
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <FloatingChat />
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>

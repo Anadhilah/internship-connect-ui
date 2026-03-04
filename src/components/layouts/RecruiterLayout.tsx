@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Briefcase, LayoutDashboard, Building2, PlusCircle, Settings, Users, LogOut, Menu, X } from "lucide-react";
+import { Briefcase, LayoutDashboard, Building2, PlusCircle, Settings, Users, MessageCircle, LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -11,6 +11,7 @@ const navItems = [
   { label: "Post Internship", path: "/recruiter/post", icon: PlusCircle },
   { label: "Manage Internships", path: "/recruiter/manage", icon: Settings },
   { label: "Applicants", path: "/recruiter/applicants", icon: Users },
+  { label: "Messages", path: "/recruiter/messages", icon: MessageCircle },
 ];
 
 export default function RecruiterLayout() {
