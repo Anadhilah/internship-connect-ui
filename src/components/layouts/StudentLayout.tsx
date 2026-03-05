@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Briefcase, LayoutDashboard, User, Search, FileText, MessageCircle, LogOut, Menu, X } from "lucide-react";
+import { Briefcase, LayoutDashboard, User, Search, FileText, MessageCircle, Video, LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -11,6 +11,7 @@ const navItems = [
   { label: "Browse Internships", path: "/student/internships", icon: Search },
   { label: "My Applications", path: "/student/applications", icon: FileText },
   { label: "Messages", path: "/student/messages", icon: MessageCircle },
+  { label: "Meetings", path: "/student/meetings", icon: Video },
 ];
 
 export default function StudentLayout() {

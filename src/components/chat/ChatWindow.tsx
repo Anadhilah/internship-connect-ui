@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, ArrowLeft } from "lucide-react";
+import { Send, ArrowLeft, Video, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChatConversation, ChatMessage } from "@/data/mockChat";
+import CallWindow from "./CallWindow";
 
 interface ChatWindowProps {
   conversation: ChatConversation;
@@ -15,6 +16,7 @@ interface ChatWindowProps {
 export default function ChatWindow({ conversation, currentUserId, onBack, compact = false }: ChatWindowProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(conversation.messages);
   const [input, setInput] = useState("");
+  const [activeCall, setActiveCall] = useState<{ mode: "video" | "voice" } | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const otherParticipant = conversation.participants.find((p) => p.id !== currentUserId);
@@ -45,6 +47,16 @@ export default function ChatWindow({ conversation, currentUserId, onBack, compac
   };
 
   return (
+    <>
+      {activeCall && otherParticipant && (
+        <CallWindow
+          callerName={otherParticipant.name}
+          callerInitial={otherParticipant.name.charAt(0)}
+          mode={activeCall.mode}
+          onEnd={() => setActiveCall(null)}
+          compact={compact}
+        />
+      )}
     <div className={cn("flex flex-col", compact ? "h-full" : "h-[calc(100vh-12rem)]")}>
       {/* Header */}
       <div className="flex items-center gap-3 p-3 border-b bg-card">
@@ -56,9 +68,17 @@ export default function ChatWindow({ conversation, currentUserId, onBack, compac
         <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-semibold text-primary">
           {otherParticipant?.name.charAt(0)}
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="text-sm font-medium truncate">{otherParticipant?.name}</p>
           <p className="text-xs text-muted-foreground capitalize">{otherParticipant?.role}</p>
+        </div>
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setActiveCall({ mode: "voice" })}>
+            <Phone className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setActiveCall({ mode: "video" })}>
+            <Video className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 
@@ -99,5 +119,6 @@ export default function ChatWindow({ conversation, currentUserId, onBack, compac
         </Button>
       </div>
     </div>
+    </>
   );
 }

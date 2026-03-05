@@ -29,6 +29,8 @@ import PostInternship from "./pages/recruiter/PostInternship";
 import ManageInternships from "./pages/recruiter/ManageInternships";
 import Applicants from "./pages/recruiter/Applicants";
 import RecruiterMessages from "./pages/recruiter/Messages";
+import StudentMeetings from "./pages/student/Meetings";
+import RecruiterMeetings from "./pages/recruiter/Meetings";
 
 import AdminLayout from "./components/layouts/AdminLayout";
 import AdminDashboard from "./pages/admin/Dashboard";
@@ -62,6 +64,7 @@ const App = () => (
               <Route path="internships/:id" element={<InternshipDetails />} />
               <Route path="applications" element={<MyApplications />} />
               <Route path="messages" element={<StudentMessages />} />
+              <Route path="meetings" element={<StudentMeetings />} />
             </Route>
 
             {/* Recruiter Routes */}
@@ -72,6 +75,7 @@ const App = () => (
               <Route path="manage" element={<ManageInternships />} />
               <Route path="applicants" element={<Applicants />} />
               <Route path="messages" element={<RecruiterMessages />} />
+              <Route path="meetings" element={<RecruiterMeetings />} />
             </Route>
 
             {/* Admin Routes */}
