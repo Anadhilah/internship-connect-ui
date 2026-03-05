@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Briefcase, LayoutDashboard, User, Search, FileText, MessageCircle, LogOut, Menu, X } from "lucide-react";
+import { Briefcase, LayoutDashboard, User, Search, FileText, MessageCircle, Video, LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
