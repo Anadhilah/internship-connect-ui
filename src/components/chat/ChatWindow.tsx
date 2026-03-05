@@ -16,6 +16,7 @@ interface ChatWindowProps {
 export default function ChatWindow({ conversation, currentUserId, onBack, compact = false }: ChatWindowProps) {
   const [messages, setMessages] = useState<ChatMessage[]>(conversation.messages);
   const [input, setInput] = useState("");
+  const [activeCall, setActiveCall] = useState<{ mode: "video" | "voice" } | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const otherParticipant = conversation.participants.find((p) => p.id !== currentUserId);
