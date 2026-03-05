@@ -29,6 +29,8 @@ import PostInternship from "./pages/recruiter/PostInternship";
 import ManageInternships from "./pages/recruiter/ManageInternships";
 import Applicants from "./pages/recruiter/Applicants";
 import RecruiterMessages from "./pages/recruiter/Messages";
+import StudentMeetings from "./pages/student/Meetings";
+import RecruiterMeetings from "./pages/recruiter/Meetings";
 
 import AdminLayout from "./components/layouts/AdminLayout";
 import AdminDashboard from "./pages/admin/Dashboard";
