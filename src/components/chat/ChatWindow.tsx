@@ -119,5 +119,6 @@ export default function ChatWindow({ conversation, currentUserId, onBack, compac
         </Button>
       </div>
     </div>
+    </>
   );
 }

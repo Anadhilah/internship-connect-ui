@@ -75,6 +75,7 @@ const App = () => (
               <Route path="manage" element={<ManageInternships />} />
               <Route path="applicants" element={<Applicants />} />
               <Route path="messages" element={<RecruiterMessages />} />
+              <Route path="meetings" element={<RecruiterMeetings />} />
             </Route>
 
             {/* Admin Routes */}

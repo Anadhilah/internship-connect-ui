@@ -11,6 +11,7 @@ const navItems = [
   { label: "Browse Internships", path: "/student/internships", icon: Search },
   { label: "My Applications", path: "/student/applications", icon: FileText },
   { label: "Messages", path: "/student/messages", icon: MessageCircle },
+  { label: "Meetings", path: "/student/meetings", icon: Video },
 ];
 
 export default function StudentLayout() {

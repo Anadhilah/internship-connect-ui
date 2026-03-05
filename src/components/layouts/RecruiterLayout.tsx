@@ -12,6 +12,7 @@ const navItems = [
   { label: "Manage Internships", path: "/recruiter/manage", icon: Settings },
   { label: "Applicants", path: "/recruiter/applicants", icon: Users },
   { label: "Messages", path: "/recruiter/messages", icon: MessageCircle },
+  { label: "Meetings", path: "/recruiter/meetings", icon: Video },
 ];
 
 export default function RecruiterLayout() {
