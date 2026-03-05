@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Send, ArrowLeft } from "lucide-react";
+import { Send, ArrowLeft, Video, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChatConversation, ChatMessage } from "@/data/mockChat";
+import CallWindow from "./CallWindow";
 
 interface ChatWindowProps {
   conversation: ChatConversation;
