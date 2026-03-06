@@ -55,6 +55,7 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             <Route path="/register/recruiter" element={<RecruiterRegister />} />
             <Route path="/recruiter/pending" element={<PendingApproval />} />
+            <Route path="/install" element={<Install />} />
 
             {/* Student Routes */}
             <Route path="/student/onboarding" element={<ProtectedRoute allowedRoles={["student"]}><StudentOnboarding /></ProtectedRoute>} />
