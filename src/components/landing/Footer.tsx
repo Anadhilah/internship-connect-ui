@@ -23,6 +23,7 @@ export function Footer() {
               <li><Link to="/login" className="hover:text-background transition-colors">Browse Internships</Link></li>
               <li><Link to="/register" className="hover:text-background transition-colors">For Recruiters</Link></li>
               <li><Link to="/login" className="hover:text-background transition-colors">Login</Link></li>
+              <li><Link to="/install" className="hover:text-background transition-colors">Install App</Link></li>
             </ul>
           </div>
           <div>
