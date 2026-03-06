@@ -64,6 +64,9 @@ export function Navbar() {
           ) : (
             <>
               <Button variant="ghost" size="sm" className="w-full justify-start" asChild>
+                <Link to="/install" onClick={() => setMobileOpen(false)}>Install App</Link>
+              </Button>
+              <Button variant="ghost" size="sm" className="w-full justify-start" asChild>
                 <Link to="/login" onClick={() => setMobileOpen(false)}>Login</Link>
               </Button>
               <Button size="sm" className="w-full" asChild>
