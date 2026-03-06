@@ -33,6 +33,9 @@ export function Navbar() {
           ) : (
             <>
               <Button variant="ghost" size="sm" asChild>
+                <Link to="/install">Install App</Link>
+              </Button>
+              <Button variant="ghost" size="sm" asChild>
                 <Link to="/login">Login</Link>
               </Button>
               <Button size="sm" asChild>
