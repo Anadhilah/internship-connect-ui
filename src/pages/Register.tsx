@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Briefcase } from "lucide-react";
+import logo from "@/assets/logo.png";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Register() {
@@ -37,9 +37,7 @@ export default function Register() {
       <Card className="w-full max-w-md shadow-elevated">
         <CardHeader className="text-center">
           <Link to="/" className="flex items-center justify-center gap-2 mb-2">
-            <div className="h-10 w-10 rounded-lg gradient-hero flex items-center justify-center">
-              <Briefcase className="h-5 w-5 text-primary-foreground" />
-            </div>
+            <img src={logo} alt="InternshipConnect" className="h-10 w-10 rounded-lg object-contain" />
           </Link>
           <CardTitle className="font-display text-2xl">Create Account</CardTitle>
           <CardDescription>Join InternshipConnect today</CardDescription>
