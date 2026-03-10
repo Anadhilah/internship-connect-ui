@@ -28,9 +28,7 @@ export default function RecruiterLayout() {
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="h-16 flex items-center gap-2 px-4 border-b border-sidebar-border">
-          <div className="h-8 w-8 rounded-lg gradient-hero flex items-center justify-center">
-            <Briefcase className="h-4 w-4 text-primary-foreground" />
-          </div>
+          <img src={logo} alt="InternshipConnect" className="h-8 w-8 rounded-lg object-contain" />
           <span className="font-display font-bold text-sm text-sidebar-primary-foreground">InternshipConnect</span>
           <button className="ml-auto lg:hidden" onClick={() => setSidebarOpen(false)}>
             <X className="h-5 w-5" />

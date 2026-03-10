@@ -25,9 +25,7 @@ export default function AdminLayout() {
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="h-16 flex items-center gap-2 px-4 border-b border-background/10">
-          <div className="h-8 w-8 rounded-lg bg-destructive flex items-center justify-center">
-            <Shield className="h-4 w-4 text-destructive-foreground" />
-          </div>
+          <img src={logo} alt="InternshipConnect" className="h-8 w-8 rounded-lg object-contain" />
           <span className="font-display font-bold text-sm">Admin Panel</span>
           <button className="ml-auto lg:hidden" onClick={() => setSidebarOpen(false)}>
             <X className="h-5 w-5" />
