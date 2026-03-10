@@ -1,6 +1,7 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Briefcase, LayoutDashboard, Users, Settings, LogOut, Menu, X, Shield, Building2 } from "lucide-react";
+import { LayoutDashboard, Users, Settings, LogOut, Menu, X, Shield, Building2 } from "lucide-react";
+import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
