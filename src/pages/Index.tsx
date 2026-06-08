@@ -63,9 +63,7 @@ export default function Index() {
                 <Link to="/login">Sign In</Link>
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground mt-4 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-              Demo credentials: student@test.com / recruiter@test.com / admin@test.com (password: password)
-            </p>
+            
           </div>
         </div>
       </section>
