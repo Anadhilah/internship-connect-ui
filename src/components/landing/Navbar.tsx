@@ -15,7 +15,7 @@ export function Navbar() {
     <nav className="sticky top-0 z-50 bg-card/80 backdrop-blur-md border-b">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2">
-          <img src={logo} alt="InternshipConnect" className="h-8 w-8 rounded-lg object-contain" />
+          <img src={logo} alt="InternshipConnect" className="h-12 w-12 rounded-lg object-contain" />
           <span className="font-display font-bold text-lg">InternshipConnect</span>
         </Link>
 
@@ -37,9 +37,9 @@ export function Navbar() {
               <Button variant="ghost" size="sm" asChild>
                 <Link to="/login">Login</Link>
               </Button>
-              <Button size="sm" asChild>
+              {/* <Button size="sm" asChild>
                 <Link to="/register">Register</Link>
-              </Button>
+              </Button> */}
             </>
           )}
         </div>
