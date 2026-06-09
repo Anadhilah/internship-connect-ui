@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 import {
   User, GraduationCap, Wrench, Upload, CheckCircle,
   ArrowRight, ArrowLeft, Briefcase, X
@@ -20,20 +21,46 @@ const STEPS = [
   { label: "Skills & Bio", icon: Wrench },
   { label: "CV Upload", icon: Upload },
   { label: "Review", icon: CheckCircle },
-];
+] as const;
 
 const SKILL_OPTIONS = [
   "JavaScript", "TypeScript", "React", "Node.js", "Python", "Java",
   "SQL", "Git", "Docker", "AWS", "Figma", "UI/UX Design",
   "Data Analysis", "Machine Learning", "Communication", "Leadership",
-];
+] as const;
+
+type Step = typeof STEPS[number]["label"];
+type SkillOption = typeof SKILL_OPTIONS[number];
+
+interface FormData {
+  rolePreference: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  university: string;
+  major: string;
+  graduationYear: string;
+  bio: string;
+  skills: SkillOption[];
+  cvFile: File | null;
+}
+
+interface Errors {
+  [key: string]: string;
+}
+
+const MAX_BIO_LENGTH = 500;
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
 export default function StudentOnboarding() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [step, setStep] = useState(0);
+  const { toast } = useToast();
 
-  const [formData, setFormData] = useState({
+  const [step, setStep] = useState<number>(0);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const [formData, setFormData] = useState<FormData>({
     rolePreference: "",
     fullName: user?.name || "",
     email: user?.email || "",
@@ -42,16 +69,34 @@ export default function StudentOnboarding() {
     major: "",
     graduationYear: "",
     bio: "",
-    skills: [] as string[],
-    cvFile: null as File | null,
+    skills: [],
+    cvFile: null,
   });
+
+  const [errors, setErrors] = useState<Errors>({});
 
   const progress = ((step + 1) / STEPS.length) * 100;
 
-  const updateField = (field: string, value: any) =>
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  // Auto-save draft
+  useEffect(() => {
+    const saved = localStorage.getItem("ic_onboarding_draft");
+    if (saved) {
+      setFormData(JSON.parse(saved));
+    }
+  }, []);
 
-  const toggleSkill = (skill: string) => {
+  useEffect(() => {
+    localStorage.setItem("ic_onboarding_draft", JSON.stringify(formData));
+  }, [formData]);
+
+  const updateField = <K extends keyof FormData>(field: K, value: FormData[K]) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors[field]) {
+      setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const toggleSkill = (skill: SkillOption) => {
     setFormData((prev) => ({
       ...prev,
       skills: prev.skills.includes(skill)
@@ -60,25 +105,87 @@ export default function StudentOnboarding() {
     }));
   };
 
+  const validateStep = (currentStep: number): boolean => {
+    const newErrors: Errors = {};
+
+    switch (currentStep) {
+      case 1:
+        if (!formData.fullName.trim()) newErrors.fullName = "Full name is required";
+        if (!formData.email.trim() || !/\S+@\S+\.\S+/.test(formData.email)) {
+          newErrors.email = "Valid email is required";
+        }
+        if (!formData.university.trim()) newErrors.university = "University is required";
+        if (!formData.major.trim()) newErrors.major = "Major is required";
+        break;
+
+      case 2:
+        if (formData.skills.length === 0) newErrors.skills = "Select at least one skill";
+        if (formData.bio.length < 20) newErrors.bio = "Bio must be at least 20 characters";
+        if (formData.bio.length > MAX_BIO_LENGTH) newErrors.bio = `Bio cannot exceed ${MAX_BIO_LENGTH} characters`;
+        break;
+
+      case 3:
+        if (formData.cvFile && formData.cvFile.size > MAX_FILE_SIZE) {
+          newErrors.cvFile = "File size must be less than 5MB";
+        }
+        break;
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
+    if (file && file.size > MAX_FILE_SIZE) {
+      toast({
+        title: "File too large",
+        description: "Maximum file size is 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
     updateField("cvFile", file);
   };
 
-  const canNext = () => {
+  const handleNext = () => {
+    if (validateStep(step)) {
+      setStep((s) => s + 1);
+    }
+  };
+
+  const handleComplete = async () => {
+    if (!validateStep(4)) return;
+
+    setIsSubmitting(true);
+    try {
+      // TODO: Send data to backend here
+      localStorage.setItem("ic_onboarded", "true");
+      localStorage.removeItem("ic_onboarding_draft");
+
+      toast({
+        title: "Profile completed!",
+        description: "Welcome to InternshipConnect",
+      });
+      navigate("/student");
+    } catch {
+      toast({
+        title: "Failed to save profile",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const canNext = (): boolean => {
     switch (step) {
       case 0: return !!formData.rolePreference;
       case 1: return !!(formData.fullName && formData.email && formData.university && formData.major);
       case 2: return formData.skills.length > 0 && formData.bio.length > 10;
-      case 3: return true; // CV is optional
       default: return true;
     }
-  };
-
-  const handleComplete = () => {
-    // In a real app, save to backend
-    localStorage.setItem("ic_onboarded", "true");
-    navigate("/student");
   };
 
   return (
@@ -170,27 +277,59 @@ export default function StudentOnboarding() {
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Full Name *</Label>
-                  <Input value={formData.fullName} onChange={(e) => updateField("fullName", e.target.value)} />
+                  <Input
+                    value={formData.fullName}
+                    onChange={(e) => updateField("fullName", e.target.value)}
+                    className={errors.fullName ? "border-destructive" : ""}
+                  />
+                  {errors.fullName && <p className="text-xs text-destructive">{errors.fullName}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label>Email *</Label>
-                  <Input type="email" value={formData.email} onChange={(e) => updateField("email", e.target.value)} />
+                  <Input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => updateField("email", e.target.value)}
+                    className={errors.email ? "border-destructive" : ""}
+                  />
+                  {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label>Phone</Label>
-                  <Input type="tel" placeholder="+1 (555) 000-0000" value={formData.phone} onChange={(e) => updateField("phone", e.target.value)} />
+                  <Input
+                    type="tel"
+                    placeholder="+1 (555) 000-0000"
+                    value={formData.phone}
+                    onChange={(e) => updateField("phone", e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label>University *</Label>
-                  <Input placeholder="e.g. MIT" value={formData.university} onChange={(e) => updateField("university", e.target.value)} />
+                  <Input
+                    placeholder="e.g. MIT"
+                    value={formData.university}
+                    onChange={(e) => updateField("university", e.target.value)}
+                    className={errors.university ? "border-destructive" : ""}
+                  />
+                  {errors.university && <p className="text-xs text-destructive">{errors.university}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label>Major *</Label>
-                  <Input placeholder="e.g. Computer Science" value={formData.major} onChange={(e) => updateField("major", e.target.value)} />
+                  <Input
+                    placeholder="e.g. Computer Science"
+                    value={formData.major}
+                    onChange={(e) => updateField("major", e.target.value)}
+                    className={errors.major ? "border-destructive" : ""}
+                  />
+                  {errors.major && <p className="text-xs text-destructive">{errors.major}</p>}
                 </div>
                 <div className="space-y-2">
                   <Label>Expected Graduation</Label>
-                  <Input placeholder="e.g. 2027" value={formData.graduationYear} onChange={(e) => updateField("graduationYear", e.target.value)} />
+                  <Input
+                    placeholder="e.g. 2027"
+                    value={formData.graduationYear}
+                    onChange={(e) => updateField("graduationYear", e.target.value)}
+                  />
                 </div>
               </div>
             )}
@@ -200,7 +339,7 @@ export default function StudentOnboarding() {
               <div className="space-y-5">
                 <div className="space-y-2">
                   <Label>Select Your Skills *</Label>
-                  <p className="text-xs text-muted-foreground">Choose at least one skill</p>
+                  {errors.skills && <p className="text-xs text-destructive">{errors.skills}</p>}
                   <div className="flex flex-wrap gap-2">
                     {SKILL_OPTIONS.map((skill) => (
                       <button
@@ -220,15 +359,20 @@ export default function StudentOnboarding() {
                     ))}
                   </div>
                 </div>
+
                 <div className="space-y-2">
-                  <Label>Bio *</Label>
+                  <Label>
+                    Bio * <span className="text-muted-foreground">({formData.bio.length}/{MAX_BIO_LENGTH})</span>
+                  </Label>
                   <Textarea
                     rows={4}
+                    maxLength={MAX_BIO_LENGTH}
                     placeholder="Tell recruiters about yourself, your goals, and what you're looking for..."
                     value={formData.bio}
                     onChange={(e) => updateField("bio", e.target.value)}
+                    className={errors.bio ? "border-destructive" : ""}
                   />
-                  <p className="text-xs text-muted-foreground">{formData.bio.length}/500 characters</p>
+                  {errors.bio && <p className="text-xs text-destructive">{errors.bio}</p>}
                 </div>
               </div>
             )}
@@ -277,6 +421,7 @@ export default function StudentOnboarding() {
                     Remove file
                   </Button>
                 )}
+                {errors.cvFile && <p className="text-xs text-destructive">{errors.cvFile}</p>}
               </div>
             )}
 
@@ -319,13 +464,22 @@ export default function StudentOnboarding() {
           >
             <ArrowLeft className="h-4 w-4 mr-1" /> Back
           </Button>
+
           {step < STEPS.length - 1 ? (
-            <Button onClick={() => setStep((s) => s + 1)} disabled={!canNext()}>
+            <Button onClick={handleNext} disabled={!canNext()}>
               Next <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
           ) : (
-            <Button onClick={handleComplete} className="gradient-hero text-primary-foreground">
-              <CheckCircle className="h-4 w-4 mr-1" /> Complete Setup
+            <Button
+              onClick={handleComplete}
+              disabled={isSubmitting}
+              className="gradient-hero text-primary-foreground"
+            >
+              {isSubmitting ? "Saving..." : (
+                <>
+                  <CheckCircle className="h-4 w-4 mr-1" /> Complete Setup
+                </>
+              )}
             </Button>
           )}
         </div>

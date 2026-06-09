@@ -36,8 +36,10 @@ export default function Login() {
       <Card className="w-full max-w-md shadow-elevated">
         <CardHeader className="text-center">
           <Link to="/" className="flex items-center justify-center gap-2 mb-2">
-            <img src={logo} alt="InternshipConnect" className="h-10 w-10 rounded-lg object-contain" />
-          </Link>
+           <img
+              src={logo} alt="InternshipConnect"className="h-[150px] w-[150px] rounded-lg object-contain"/>
+           </Link>
+           
           <CardTitle className="font-display text-2xl">Welcome Back</CardTitle>
           <CardDescription>Sign in to your InternshipConnect account</CardDescription>
         </CardHeader>
