@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import logo from "@/assets/logo.png";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -18,9 +19,10 @@ export default function Register() {
   const [role, setRole] = useState<"student" | "recruiter">("student");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  
-  const { register } = useAuth();
+
+  const { signUp, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,12 +40,21 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await register(name, email, password, role);
+      await signUp(name, email, password, role);
+      toast({ title: "Account created", description: "Welcome to InternshipConnect!" });
       navigate("/student/onboarding");
-    } catch {
-      // Error handled by AuthContext or toast if you have it
+    } catch (err: any) {
+      setError(err.message ?? "Sign up failed");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (err: any) {
+      toast({ title: "Google sign-in failed", description: err.message, variant: "destructive" });
     }
   };
 
@@ -153,7 +164,16 @@ export default function Register() {
             </Button>
           </form>
 
-         
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">Or</span>
+            </div>
+          </div>
+          <Button type="button" variant="outline" className="w-full" onClick={handleGoogle}>
+            Continue with Google
+          </Button>
+
           <p className="text-center text-sm text-muted-foreground mt-6">
             Already have an account? <Link to="/login" className="text-primary font-medium hover:underline">Sign In</Link>
           </p>
