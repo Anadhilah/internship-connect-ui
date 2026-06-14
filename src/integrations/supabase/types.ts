@@ -14,16 +14,360 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      applications: {
+        Row: {
+          cover_letter: string | null
+          created_at: string
+          id: string
+          internship_id: string
+          resume_url: string | null
+          status: Database["public"]["Enums"]["application_status"]
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          cover_letter?: string | null
+          created_at?: string
+          id?: string
+          internship_id: string
+          resume_url?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          cover_letter?: string | null
+          created_at?: string
+          id?: string
+          internship_id?: string
+          resume_url?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          student_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_internship_id_fkey"
+            columns: ["internship_id"]
+            isOneToOne: false
+            referencedRelation: "internships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string
+          recruiter_id: string
+          student_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          recruiter_id: string
+          student_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          recruiter_id?: string
+          student_id?: string
+        }
+        Relationships: []
+      }
+      internships: {
+        Row: {
+          company: string
+          created_at: string
+          deadline: string | null
+          description: string
+          duration: string | null
+          id: string
+          is_active: boolean
+          location: string
+          org_id: string | null
+          recruiter_id: string
+          requirements: string | null
+          stipend: string | null
+          title: string
+          type: Database["public"]["Enums"]["internship_type"]
+          updated_at: string
+        }
+        Insert: {
+          company: string
+          created_at?: string
+          deadline?: string | null
+          description: string
+          duration?: string | null
+          id?: string
+          is_active?: boolean
+          location: string
+          org_id?: string | null
+          recruiter_id: string
+          requirements?: string | null
+          stipend?: string | null
+          title: string
+          type?: Database["public"]["Enums"]["internship_type"]
+          updated_at?: string
+        }
+        Update: {
+          company?: string
+          created_at?: string
+          deadline?: string | null
+          description?: string
+          duration?: string | null
+          id?: string
+          is_active?: boolean
+          location?: string
+          org_id?: string | null
+          recruiter_id?: string
+          requirements?: string | null
+          stipend?: string | null
+          title?: string
+          type?: Database["public"]["Enums"]["internship_type"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "internships_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "recruiter_orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meetings: {
+        Row: {
+          conversation_id: string | null
+          created_at: string
+          duration_minutes: number
+          guest_id: string
+          host_id: string
+          id: string
+          notes: string | null
+          scheduled_at: string
+          status: Database["public"]["Enums"]["meeting_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          conversation_id?: string | null
+          created_at?: string
+          duration_minutes?: number
+          guest_id: string
+          host_id: string
+          id?: string
+          notes?: string | null
+          scheduled_at: string
+          status?: Database["public"]["Enums"]["meeting_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          conversation_id?: string | null
+          created_at?: string
+          duration_minutes?: number
+          guest_id?: string
+          host_id?: string
+          id?: string
+          notes?: string | null
+          scheduled_at?: string
+          status?: Database["public"]["Enums"]["meeting_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meetings_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          body: string
+          conversation_id: string
+          created_at: string
+          id: string
+          read_at: string | null
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      recruiter_orgs: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          owner_id: string
+          status: Database["public"]["Enums"]["org_status"]
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          owner_id: string
+          status?: Database["public"]["Enums"]["org_status"]
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          owner_id?: string
+          status?: Database["public"]["Enums"]["org_status"]
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      student_profiles: {
+        Row: {
+          created_at: string
+          graduation_year: number | null
+          major: string | null
+          onboarding_completed: boolean
+          resume_url: string | null
+          skills: string[] | null
+          university: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          graduation_year?: number | null
+          major?: string | null
+          onboarding_completed?: boolean
+          resume_url?: string | null
+          skills?: string[] | null
+          university?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          graduation_year?: number | null
+          major?: string | null
+          onboarding_completed?: boolean
+          resume_url?: string | null
+          skills?: string[] | null
+          university?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "student" | "recruiter" | "admin"
+      application_status: "pending" | "reviewing" | "accepted" | "rejected"
+      internship_type: "remote" | "hybrid" | "onsite"
+      meeting_status: "scheduled" | "completed" | "cancelled"
+      org_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +494,12 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["student", "recruiter", "admin"],
+      application_status: ["pending", "reviewing", "accepted", "rejected"],
+      internship_type: ["remote", "hybrid", "onsite"],
+      meeting_status: ["scheduled", "completed", "cancelled"],
+      org_status: ["pending", "approved", "rejected"],
+    },
   },
 } as const
