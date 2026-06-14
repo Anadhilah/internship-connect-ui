@@ -164,7 +164,16 @@ export default function Register() {
             </Button>
           </form>
 
-         
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">Or</span>
+            </div>
+          </div>
+          <Button type="button" variant="outline" className="w-full" onClick={handleGoogle}>
+            Continue with Google
+          </Button>
+
           <p className="text-center text-sm text-muted-foreground mt-6">
             Already have an account? <Link to="/login" className="text-primary font-medium hover:underline">Sign In</Link>
           </p>

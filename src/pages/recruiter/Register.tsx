@@ -24,7 +24,7 @@ const STEPS = [
 
 export default function RecruiterRegister() {
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { signUp } = useAuth();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [captchaChecked, setCaptchaChecked] = useState(false);
@@ -67,8 +67,23 @@ export default function RecruiterRegister() {
   const handleSubmit = async () => {
     setLoading(true);
     try {
-      await register(formData.name, formData.email, formData.password, "recruiter");
+      // Create the auth user (role=recruiter set via metadata)
+      await signUp(formData.name, formData.email, formData.password, "recruiter");
+      // Sign-in is automatic when auto-confirm is on; create the org row
+      const { supabase } = await import("@/integrations/supabase/client");
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from("recruiter_orgs").insert({
+          owner_id: user.id,
+          name: formData.companyName,
+          website: formData.companyWebsite || null,
+          description: formData.companyDescription || null,
+          status: "pending",
+        });
+      }
       navigate("/recruiter/pending");
+    } catch (e) {
+      console.error(e);
     } finally {
       setLoading(false);
     }
