@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import logo from "@/assets/logo.png";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Register() {
   const [name, setName] = useState("");
@@ -18,9 +19,10 @@ export default function Register() {
   const [role, setRole] = useState<"student" | "recruiter">("student");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  
-  const { register } = useAuth();
+
+  const { signUp, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,12 +40,21 @@ export default function Register() {
 
     setLoading(true);
     try {
-      await register(name, email, password, role);
+      await signUp(name, email, password, role);
+      toast({ title: "Account created", description: "Welcome to InternshipConnect!" });
       navigate("/student/onboarding");
-    } catch {
-      // Error handled by AuthContext or toast if you have it
+    } catch (err: any) {
+      setError(err.message ?? "Sign up failed");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (err: any) {
+      toast({ title: "Google sign-in failed", description: err.message, variant: "destructive" });
     }
   };
 
