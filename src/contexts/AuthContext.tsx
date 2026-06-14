@@ -1,3 +1,4 @@
+import api from "../api/api";
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -34,11 +35,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const login = async (email: string, _password: string) => {
-    const found = mockUsers[email];
-    if (!found) throw new Error("Invalid credentials");
-    const { password: _, ...userData } = found;
-    setUser(userData);
-    localStorage.setItem("ic_user", JSON.stringify(userData));
+        try {
+        const url = "/auth/login";
+        const data = { email: email, password: _password };
+        const LoginPost = await api.post(url, data);
+        if (LoginPost.status != 200) throw new Error("An error occurred: Login failed");
+        const postResponse = LoginPost.data;
+        const postResponseStatus = postResponse.status;
+        if (postResponseStatus == 'success') {
+            const accessToken: string = postResponse.data.accessToken;
+            const userData: User = postResponse.data.user;
+            setUser(userData);
+            localStorage.setItem("ic_user", JSON.stringify(userData));
+            localStorage.setItem("ic_email", JSON.stringify(userData.email));
+            localStorage.setItem("ic_name", JSON.stringify(userData.name));
+            localStorage.setItem("ic_role", JSON.stringify(userData.role.toLocaleLowerCase()));
+            localStorage.setItem("access_token", accessToken); return;
+        }
+        throw new Error(`Login failed: ${postResponse.data}`);
+        
+
+    } catch (error) {
+        console.error("Authentication error:", error);
+        throw error;
+    }
   };
 
   const register = async (name: string, email: string, _password: string, role: "student" | "recruiter") => {
