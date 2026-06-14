@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { ChatConversation } from "@/data/mockChat";
+import type { ChatConversation } from "@/data/chat";
 
 interface ConversationListProps {
   conversations: ChatConversation[];
@@ -23,11 +23,13 @@ export default function ConversationList({ conversations, currentUserId, selecte
         <h3 className="font-display font-semibold text-sm">Messages</h3>
       </div>
       <div className="flex-1 overflow-y-auto">
+        {conversations.length === 0 && (
+          <p className="text-xs text-muted-foreground p-4 text-center">No conversations yet.</p>
+        )}
         {conversations.map((conv) => {
           const other = conv.participants.find((p) => p.id !== currentUserId);
           const lastMsg = conv.messages[conv.messages.length - 1];
           const active = selectedId === conv.id;
-
           return (
             <button
               key={conv.id}
@@ -45,7 +47,7 @@ export default function ConversationList({ conversations, currentUserId, selecte
                   <p className="text-sm font-medium truncate">{other?.name}</p>
                   <span className="text-[10px] text-muted-foreground flex-shrink-0">{formatDate(conv.lastActivity)}</span>
                 </div>
-                <p className="text-xs text-muted-foreground truncate mt-0.5">{lastMsg?.text}</p>
+                <p className="text-xs text-muted-foreground truncate mt-0.5">{lastMsg?.text || "—"}</p>
               </div>
             </button>
           );
