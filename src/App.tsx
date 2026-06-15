@@ -22,7 +22,7 @@ import InternshipDetails from "./pages/student/InternshipDetails";
 import MyApplications from "./pages/student/MyApplications";
 import StudentMessages from "./pages/student/Messages";
 
-import RecruiterRegister from "./pages/recruiter/Register";
+import RecruiterOnboarding from "./pages/recruiter/Onboarding";
 import PendingApproval from "./pages/recruiter/PendingApproval";
 import RecruiterLayout from "./components/layouts/RecruiterLayout";
 import RecruiterOverview from "./pages/recruiter/Overview";
@@ -54,8 +54,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/register/recruiter" element={<RecruiterRegister />} />
-            <Route path="/recruiter/pending" element={<PendingApproval />} />
+            <Route path="/recruiter/onboarding" element={<ProtectedRoute allowedRoles={["recruiter"]}><RecruiterOnboarding /></ProtectedRoute>} />
+            <Route path="/recruiter/pending" element={<ProtectedRoute allowedRoles={["recruiter"]}><PendingApproval /></ProtectedRoute>} />
             <Route path="/install" element={<Install />} />
             <Route path="/reset-password" element={<ResetPassword />} />
 

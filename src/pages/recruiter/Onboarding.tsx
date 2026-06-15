@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,32 +9,29 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 import {
-  Building2, ArrowRight, ArrowLeft, Upload, ShieldCheck,
-  CheckCircle, AlertTriangle, User, FileText
+  Building2, ArrowRight, ArrowLeft, ShieldCheck,
+  CheckCircle, AlertTriangle, FileText,
 } from "lucide-react";
 
 const STEPS = [
-  { label: "Account", icon: User },
   { label: "Company", icon: Building2 },
   { label: "Verification", icon: ShieldCheck },
   { label: "Review", icon: CheckCircle },
 ];
 
-export default function RecruiterRegister() {
+export default function RecruiterOnboarding() {
   const navigate = useNavigate();
-  const { signUp } = useAuth();
+  const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [checkingOrg, setCheckingOrg] = useState(true);
   const [captchaChecked, setCaptchaChecked] = useState(false);
 
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
     companyName: "",
     companyWebsite: "",
     companyAddress: "",
@@ -46,6 +44,23 @@ export default function RecruiterRegister() {
     agreeTerms: false,
   });
 
+  // If recruiter already has an org row, skip onboarding
+  useEffect(() => {
+    if (authLoading || !user) return;
+    (async () => {
+      const { data } = await supabase
+        .from("recruiter_orgs")
+        .select("id, status")
+        .eq("owner_id", user.id)
+        .maybeSingle();
+      if (data) {
+        navigate(data.status === "approved" ? "/recruiter" : "/recruiter/pending", { replace: true });
+      } else {
+        setCheckingOrg(false);
+      }
+    })();
+  }, [user, authLoading, navigate]);
+
   const progress = ((step + 1) / STEPS.length) * 100;
 
   const updateField = (field: string, value: any) =>
@@ -57,53 +72,71 @@ export default function RecruiterRegister() {
 
   const canNext = () => {
     switch (step) {
-      case 0: return !!(formData.name && formData.email && formData.password && formData.password === formData.confirmPassword);
-      case 1: return !!(formData.companyName && formData.industry);
-      case 2: return !!(formData.registrationNumber && captchaChecked);
+      case 0: return !!(formData.companyName && formData.industry);
+      case 1: return !!(formData.registrationNumber && captchaChecked && formData.agreeTerms);
       default: return true;
     }
   };
 
+  const uploadProof = async (): Promise<string | null> => {
+    if (!formData.proofFile || !user) return null;
+    const ext = formData.proofFile.name.split(".").pop();
+    const path = `${user.id}/verification-${Date.now()}.${ext}`;
+    const { error } = await supabase.storage
+      .from("resumes")
+      .upload(path, formData.proofFile, { upsert: true });
+    if (error) {
+      console.error("proof upload failed", error);
+      return null;
+    }
+    return path;
+  };
+
   const handleSubmit = async () => {
+    if (!user) return;
     setLoading(true);
     try {
-      // Create the auth user (role=recruiter set via metadata)
-      await signUp(formData.name, formData.email, formData.password, "recruiter");
-      // Sign-in is automatic when auto-confirm is on; create the org row
-      const { supabase } = await import("@/integrations/supabase/client");
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        await supabase.from("recruiter_orgs").insert({
-          owner_id: user.id,
-          name: formData.companyName,
-          website: formData.companyWebsite || null,
-          description: formData.companyDescription || null,
-          status: "pending",
-        });
-      }
+      const proofPath = await uploadProof();
+      const { error } = await supabase.from("recruiter_orgs").insert({
+        owner_id: user.id,
+        name: formData.companyName,
+        website: formData.companyWebsite || null,
+        description: formData.companyDescription || null,
+        industry: formData.industry || null,
+        company_size: formData.companySize || null,
+        address: formData.companyAddress || null,
+        registration_number: formData.registrationNumber || null,
+        tax_id: formData.taxId || null,
+        proof_document_url: proofPath,
+        status: "pending",
+      });
+      if (error) throw error;
+      toast({ title: "Submitted for approval", description: "We'll notify you once verified." });
       navigate("/recruiter/pending");
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      toast({ title: "Submission failed", description: e.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
 
+  if (authLoading || checkingOrg) {
+    return <div className="min-h-screen flex items-center justify-center text-muted-foreground">Loading…</div>;
+  }
+
   return (
     <div className="min-h-screen bg-muted/30 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-2xl space-y-6 animate-fade-in">
-        {/* Header */}
         <div className="text-center space-y-2">
           <Link to="/" className="inline-flex">
             <div className="h-12 w-12 rounded-xl gradient-hero flex items-center justify-center mx-auto">
               <Building2 className="h-6 w-6 text-primary-foreground" />
             </div>
           </Link>
-          <h1 className="text-2xl font-display font-bold">Register Your Organization</h1>
-          <p className="text-muted-foreground text-sm">Create a verified recruiter account</p>
+          <h1 className="text-2xl font-display font-bold">Verify Your Organization</h1>
+          <p className="text-muted-foreground text-sm">Welcome {user?.name}! Complete your recruiter profile.</p>
         </div>
 
-        {/* Progress Indicator */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             {STEPS.map((s, i) => (
@@ -129,40 +162,13 @@ export default function RecruiterRegister() {
           <CardHeader>
             <CardTitle className="text-lg">{STEPS[step].label}</CardTitle>
             <CardDescription>
-              {step === 0 && "Create your account credentials"}
-              {step === 1 && "Tell us about your company"}
-              {step === 2 && "Submit business registration proof for verification"}
-              {step === 3 && "Review and submit your application"}
+              {step === 0 && "Tell us about your company"}
+              {step === 1 && "Submit business registration proof for verification"}
+              {step === 2 && "Review and submit your application"}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Step 0: Account */}
             {step === 0 && (
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Full Name *</Label>
-                  <Input value={formData.name} onChange={(e) => updateField("name", e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Email *</Label>
-                  <Input type="email" value={formData.email} onChange={(e) => updateField("email", e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Password *</Label>
-                  <Input type="password" value={formData.password} onChange={(e) => updateField("password", e.target.value)} />
-                </div>
-                <div className="space-y-2">
-                  <Label>Confirm Password *</Label>
-                  <Input type="password" value={formData.confirmPassword} onChange={(e) => updateField("confirmPassword", e.target.value)} />
-                  {formData.confirmPassword && formData.password !== formData.confirmPassword && (
-                    <p className="text-xs text-destructive">Passwords do not match</p>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* Step 1: Company Info */}
-            {step === 1 && (
               <div className="space-y-4">
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
@@ -193,8 +199,7 @@ export default function RecruiterRegister() {
               </div>
             )}
 
-            {/* Step 2: Verification */}
-            {step === 2 && (
+            {step === 1 && (
               <div className="space-y-5">
                 <div className="rounded-lg border border-warning/30 bg-warning/5 p-4 flex gap-3">
                   <AlertTriangle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
@@ -216,11 +221,11 @@ export default function RecruiterRegister() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Upload Proof of Registration *</Label>
+                  <Label>Upload Proof of Registration</Label>
                   <label
                     htmlFor="proof-upload"
                     className={cn(
-                      "border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all",
+                      "border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all block",
                       formData.proofFile ? "border-primary bg-primary/5" : "border-border hover:border-primary/50"
                     )}
                   >
@@ -237,13 +242,8 @@ export default function RecruiterRegister() {
                   </label>
                 </div>
 
-                {/* CAPTCHA Placeholder */}
                 <div className="rounded-lg border p-4 flex items-center gap-3">
-                  <Checkbox
-                    id="captcha"
-                    checked={captchaChecked}
-                    onCheckedChange={(v) => setCaptchaChecked(!!v)}
-                  />
+                  <Checkbox id="captcha" checked={captchaChecked} onCheckedChange={(v) => setCaptchaChecked(!!v)} />
                   <div className="flex items-center gap-2 flex-1">
                     <Label htmlFor="captcha" className="cursor-pointer text-sm">I'm not a robot</Label>
                     <div className="ml-auto flex items-center gap-1.5">
@@ -254,11 +254,7 @@ export default function RecruiterRegister() {
                 </div>
 
                 <div className="flex items-start gap-2">
-                  <Checkbox
-                    id="terms"
-                    checked={formData.agreeTerms}
-                    onCheckedChange={(v) => updateField("agreeTerms", !!v)}
-                  />
+                  <Checkbox id="terms" checked={formData.agreeTerms} onCheckedChange={(v) => updateField("agreeTerms", !!v)} />
                   <Label htmlFor="terms" className="text-xs text-muted-foreground cursor-pointer leading-relaxed">
                     I agree to the Terms of Service and certify that the provided business information is accurate.
                   </Label>
@@ -266,8 +262,7 @@ export default function RecruiterRegister() {
               </div>
             )}
 
-            {/* Step 3: Review */}
-            {step === 3 && (
+            {step === 2 && (
               <div className="space-y-4">
                 <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 flex gap-3">
                   <ShieldCheck className="h-5 w-5 text-primary flex-shrink-0" />
@@ -279,10 +274,10 @@ export default function RecruiterRegister() {
                   </div>
                 </div>
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <ReviewItem label="Name" value={formData.name} />
-                  <ReviewItem label="Email" value={formData.email} />
                   <ReviewItem label="Company" value={formData.companyName} />
                   <ReviewItem label="Industry" value={formData.industry} />
+                  <ReviewItem label="Website" value={formData.companyWebsite || "—"} />
+                  <ReviewItem label="Size" value={formData.companySize || "—"} />
                   <ReviewItem label="Registration #" value={formData.registrationNumber} />
                   <ReviewItem label="Tax ID" value={formData.taxId || "—"} />
                   <ReviewItem label="Proof Document" value={formData.proofFile?.name || "Not uploaded"} />
@@ -293,9 +288,8 @@ export default function RecruiterRegister() {
           </CardContent>
         </Card>
 
-        {/* Navigation */}
         <div className="flex justify-between">
-          <Button variant="outline" onClick={() => step === 0 ? navigate("/register") : setStep((s) => s - 1)}>
+          <Button variant="outline" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0}>
             <ArrowLeft className="h-4 w-4 mr-1" /> Back
           </Button>
           {step < STEPS.length - 1 ? (
@@ -308,10 +302,6 @@ export default function RecruiterRegister() {
             </Button>
           )}
         </div>
-
-        <p className="text-center text-xs text-muted-foreground">
-          Already have an account? <Link to="/login" className="text-primary font-medium hover:underline">Sign In</Link>
-        </p>
       </div>
     </div>
   );
