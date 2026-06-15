@@ -33,16 +33,11 @@ export default function Register() {
       return;
     }
 
-    if (role === "recruiter") {
-      navigate("/register/recruiter");
-      return;
-    }
-
     setLoading(true);
     try {
       await signUp(name, email, password, role);
       toast({ title: "Account created", description: "Welcome to InternshipConnect!" });
-      navigate("/student/onboarding");
+      navigate(role === "recruiter" ? "/recruiter/onboarding" : "/student/onboarding");
     } catch (err: any) {
       setError(err.message ?? "Sign up failed");
     } finally {
