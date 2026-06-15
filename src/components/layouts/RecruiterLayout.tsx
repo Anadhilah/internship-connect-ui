@@ -21,6 +21,27 @@ export default function RecruiterLayout() {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [orgStatus, setOrgStatus] = useState<"loading" | "missing" | "pending" | "approved">("loading");
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("recruiter_orgs")
+      .select("status")
+      .eq("owner_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!data) setOrgStatus("missing");
+        else if (data.status === "approved") setOrgStatus("approved");
+        else setOrgStatus("pending");
+      });
+  }, [user]);
+
+  if (orgStatus === "loading") {
+    return <div className="min-h-screen flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>;
+  }
+  if (orgStatus === "missing") return <Navigate to="/recruiter/onboarding" replace />;
+  if (orgStatus === "pending") return <Navigate to="/recruiter/pending" replace />;
 
   return (
     <div className="min-h-screen flex bg-muted/30">
