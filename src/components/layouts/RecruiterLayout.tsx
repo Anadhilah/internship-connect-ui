@@ -1,10 +1,11 @@
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link, useLocation, Navigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, Building2, PlusCircle, Settings, Users, MessageCircle, Video, LogOut, Menu, X } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { LayoutDashboard, Building2, PlusCircle, Settings, Users, MessageCircle, Video, LogOut, Menu, X, Loader2 } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const navItems = [
   { label: "Overview", path: "/recruiter", icon: LayoutDashboard },
