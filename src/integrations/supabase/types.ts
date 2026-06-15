@@ -258,35 +258,53 @@ export type Database = {
       }
       recruiter_orgs: {
         Row: {
+          address: string | null
+          company_size: string | null
           created_at: string
           description: string | null
           id: string
+          industry: string | null
           logo_url: string | null
           name: string
           owner_id: string
+          proof_document_url: string | null
+          registration_number: string | null
           status: Database["public"]["Enums"]["org_status"]
+          tax_id: string | null
           updated_at: string
           website: string | null
         }
         Insert: {
+          address?: string | null
+          company_size?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          industry?: string | null
           logo_url?: string | null
           name: string
           owner_id: string
+          proof_document_url?: string | null
+          registration_number?: string | null
           status?: Database["public"]["Enums"]["org_status"]
+          tax_id?: string | null
           updated_at?: string
           website?: string | null
         }
         Update: {
+          address?: string | null
+          company_size?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          industry?: string | null
           logo_url?: string | null
           name?: string
           owner_id?: string
+          proof_document_url?: string | null
+          registration_number?: string | null
           status?: Database["public"]["Enums"]["org_status"]
+          tax_id?: string | null
           updated_at?: string
           website?: string | null
         }

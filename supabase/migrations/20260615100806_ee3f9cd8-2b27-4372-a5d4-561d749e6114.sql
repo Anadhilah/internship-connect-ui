@@ -1,0 +1,7 @@
+ALTER TABLE public.recruiter_orgs
+  ADD COLUMN IF NOT EXISTS industry TEXT,
+  ADD COLUMN IF NOT EXISTS company_size TEXT,
+  ADD COLUMN IF NOT EXISTS address TEXT,
+  ADD COLUMN IF NOT EXISTS registration_number TEXT,
+  ADD COLUMN IF NOT EXISTS tax_id TEXT,
+  ADD COLUMN IF NOT EXISTS proof_document_url TEXT;
