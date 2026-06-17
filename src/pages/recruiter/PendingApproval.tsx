@@ -1,20 +1,35 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock, ShieldCheck, Mail } from "lucide-react";
+import { Clock, ShieldCheck, Mail, RefreshCw } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 
 export default function PendingApproval() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [checking, setChecking] = useState(false);
+
+  const checkStatus = useCallback(async () => {
+    if (!user) return;
+    setChecking(true);
+    const { data } = await supabase
+      .from("recruiter_orgs")
+      .select("status")
+      .eq("owner_id", user.id)
+      .maybeSingle();
+    setChecking(false);
+    if (data?.status === "approved") {
+      navigate("/recruiter", { replace: true });
+    }
+  }, [user, navigate]);
 
   useEffect(() => {
     if (!user) return;
     let cancelled = false;
 
-    const check = async () => {
+    const poll = async () => {
       const { data } = await supabase
         .from("recruiter_orgs")
         .select("status")
@@ -25,8 +40,8 @@ export default function PendingApproval() {
       }
     };
 
-    check();
-    const interval = setInterval(check, 10000);
+    poll();
+    const interval = setInterval(poll, 10000);
 
     const channel = supabase
       .channel(`recruiter-org-${user.id}`)
@@ -69,7 +84,7 @@ export default function PendingApproval() {
                 <p className="text-xs text-muted-foreground">Business documents are being reviewed</p>
               </div>
             </div>
-            <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+            <div className="flex items. items-start gap-3 p-3 rounded-lg bg-muted/50">
               <Mail className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
               <div>
                 <p className="font-medium">Email Notification</p>
@@ -77,7 +92,11 @@ export default function PendingApproval() {
               </div>
             </div>
           </div>
-          <div className="pt-2">
+          <div className="pt-2 flex gap-3 justify-center">
+            <Button variant="outline" onClick={checkStatus} disabled={checking}>
+              <RefreshCw className={`h-4 w-4 mr-2 ${checking ? "animate-spin" : ""}`} />
+              Check Status
+            </Button>
             <Button variant="outline" asChild>
               <Link to="/">Return to Home</Link>
             </Button>
